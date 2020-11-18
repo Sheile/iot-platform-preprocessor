@@ -1,0 +1,14 @@
+{
+  "name": "iot-platform-default-preprocessor",
+  "version": "0.1.0",
+  "description": "Default preprocessor for IoT platform",
+  "main": "build/bundle.js",
+  "scripts": {
+  },
+  "author": "Yo Takezawa",
+  "license": "Apache-2.0",
+  "devDependencies": {
+  },
+  "dependencies": {
+  }
+}
