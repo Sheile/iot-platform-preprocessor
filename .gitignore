@@ -1,2 +1,5 @@
 # 3rd party libraries
 node_modules/
+
+# Generate automatically
+coverage/
