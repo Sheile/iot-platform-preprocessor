@@ -12,6 +12,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/jest": "^26.0.15",
+    "@types/log4js": "^2.3.5",
     "@typescript-eslint/eslint-plugin": "^2.31.0",
     "@typescript-eslint/parser": "^2.31.0",
     "eslint": "^7.0.0",
@@ -20,5 +21,6 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
+    "log4js": "^6.3.0"
   }
 }
