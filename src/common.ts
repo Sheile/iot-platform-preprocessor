@@ -17,3 +17,10 @@ export class QueueDef {
     })
   }
 }
+
+type JsonPrimitive = boolean | number  | string  | null;
+type JsonArray = JsonPrimitive[] | JsonObject[];
+export type JsonObject = {
+  [key: string]: JsonPrimitive | JsonObject | JsonArray;
+};
+export type JsonType = JsonPrimitive | JsonArray | JsonObject;

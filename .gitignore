@@ -2,4 +2,8 @@
 node_modules/
 
 # Generate automatically
+build/
 coverage/
+
+# Keep .gitkeep
+!.gitkeep
