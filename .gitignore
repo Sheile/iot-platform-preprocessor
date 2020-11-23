@@ -5,5 +5,8 @@ node_modules/
 build/
 coverage/
 
+# Sensitive settings
+env.sh
+
 # Keep .gitkeep
 !.gitkeep
