@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs'
-import { Connection, ConnectionOptions, Receiver, ReceiverOptions, ReceiverEvents, EventContext, Message, Sender, SenderOptions } from 'rhea-promise'
+import { Connection, ConnectionOptions, Receiver, ReceiverOptions, ReceiverEvents, EventContext, Message, AwaitableSender, SenderOptions } from 'rhea-promise'
 import Ajv from 'ajv'
 import { Liquid } from 'liquidjs'
 import log4js from 'log4js'
@@ -17,7 +17,7 @@ let connection: Connection | undefined
 
 export class Preprocessor {
   private receiver: Receiver | undefined;
-  private sender: Sender | undefined;
+  private sender: AwaitableSender | undefined;
 
   constructor(private queueDef: QueueDef) {
   }
@@ -75,7 +75,7 @@ export class Preprocessor {
         address: this.queueDef.to,
       }
     }
-    this.sender = await connection.createSender(senderOptions)
+    this.sender = await connection.createAwaitableSender(senderOptions)
 
     const validate: Function = this.createValidator(this.queueDef.schema)
     const render: Function = this.createRenderer(this.queueDef.template)
@@ -110,14 +110,13 @@ export class Preprocessor {
   }
 
   private sendMessage(context: EventContext, msg: object): void {
-    try {
-      this.sender?.send({ body: msg })
+    this.sender?.send({ body: msg }).then(() => {
       logger.debug(`sent message: ${msg}`)
       context.delivery?.accept()
-    } catch (err) {
+    }).catch(err => {
       logger.error('failed sending message', err)
       context.delivery?.release()
-    }
+    })
   }
 
   private messageBody2String(message: Message): string {
