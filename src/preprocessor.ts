@@ -70,13 +70,6 @@ export class Preprocessor {
     }
     this.receiver = await connection.createReceiver(receiverOptions)
 
-    const senderOptions: SenderOptions = {
-      target: {
-        address: this.queueDef.to,
-      }
-    }
-    this.sender = await connection.createAwaitableSender(senderOptions)
-
     const validate: Function = this.createValidator(this.queueDef.schema)
     const render: Function = this.createRenderer(this.queueDef.template)
 
@@ -93,9 +86,9 @@ export class Preprocessor {
             context.delivery?.reject()
           }
           if (Array.isArray(parsed)) {
-            parsed.forEach(message => this.sendMessage(context, render(message)))
+            parsed.forEach(message => this.sendMessage(connection, context, render(message)))
           } else {
-            this.sendMessage(context, render(parsed))
+            this.sendMessage(connection, context, render(parsed))
           }
         } catch (err) {
           logger.error('failed when receiving message', err)
@@ -109,12 +102,22 @@ export class Preprocessor {
     return `${host}:${port}/${this.queueDef.from}`
   }
 
-  private sendMessage(context: EventContext, msg: object): void {
-    this.sender?.send({ body: msg }).then(() => {
-      logger.debug(`sent message: ${msg}`)
-      context.delivery?.accept()
+  private sendMessage(connection: Connection, context: EventContext, msg: object): void {
+    const senderOptions: SenderOptions = {
+      target: {
+        address: this.queueDef.to,
+      }
+    }
+    connection.createAwaitableSender(senderOptions).then(sender => {
+      sender?.send({ body: msg }).then(() => {
+        logger.debug(`sent message: ${msg}`)
+        context.delivery?.accept()
+      }).catch(err => {
+        logger.error('failed sending message', err)
+        context.delivery?.release()
+      })
     }).catch(err => {
-      logger.error('failed sending message', err)
+      logger.error('failed create sender', err)
       context.delivery?.release()
     })
   }
